@@ -1,0 +1,10 @@
+pandas
+numpy
+scipy
+scikit-learn
+matplotlib
+seaborn
+matplotlib-venn
+gprofiler-official
+bioservices
+tqdm
