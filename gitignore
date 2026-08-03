@@ -1,0 +1,8 @@
+# Raw and intermediate data (large files, regenerable from GEO)
+data/
+results/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
