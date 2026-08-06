@@ -1,90 +1,85 @@
 # Comparative Transcriptomic Analysis of Neurodegeneration and Viral Infection: A Multi-Method Validation Framework
 
-![Python](https://img.shields.io/badge/python-3.9%2B-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-research%20prototype-yellow)
+![Python](https://img.shields.io/badge/python-3.9-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Status](https://img.shields.io/badge/status-active-brightgreen)
 
-A gene expression analysis pipeline comparing a neurodegenerative disease dataset against a viral infection dataset, using statistical testing, correlation analysis, and pathway enrichment to identify shared and divergent transcriptomic signatures.
+A gene expression analysis pipeline comparing a neurodegenerative disease dataset against a viral infection dataset, using cross-platform normalization, differential expression testing, correlation analysis, statistical validation, and pathway enrichment to identify shared and divergent transcriptomic signatures.
 
-International collaboration with Dr. Leyla Baghirzada (University of Calgary).
+International collaboration with **Leyla Baghirzada, MD, FRCPC, MPH**, Clinical Assistant Professor, Department of Anesthesiology, Perioperative and Pain Medicine, University of Calgary.
+
+A preprint based on this analysis is submitted to bioRxiv.
 
 ## Table of Contents
-
 - [Overview](#overview)
-- [Architecture](#architecture)
 - [Project Structure](#project-structure)
 - [Data](#data)
 - [Methodology](#methodology)
 - [Setup](#setup)
 - [Usage](#usage)
+- [Key Findings](#key-findings)
 - [Limitations](#limitations)
 - [Tech Stack](#tech-stack)
 - [License](#license)
+- [Authors](#authors)
 
 ## Overview
 
-This pipeline compares gene expression profiles from Parkinson's disease (GDS5646) and Influenza (GDS6063) datasets, sourced from NCBI's Gene Expression Omnibus, to characterize the overlap between neurodegenerative and viral-response gene expression signatures. The framework applies multiple independent validation methods, statistical significance testing, correlation analysis, and functional pathway enrichment, so that any observed overlap is supported by more than one line of evidence.
-
-## Architecture
-
-```mermaid
-flowchart TD
-    A[GEO SOFT Files] --> B[Preprocessing<br/>parse, clean gene symbols]
-    B --> C[Gene Set Comparison<br/>common vs. dataset-unique genes]
-    C --> D[Statistical Validation<br/>Fisher's Exact, Chi-Square, Shapiro-Wilk]
-    C --> E[Correlation Analysis<br/>Pearson, z-score normalized]
-    C --> F[Functional Enrichment<br/>GO terms via g:Profiler]
-    C --> G[Pathway Analysis<br/>KEGG pathway lookup]
-    D --> H[Visualization & Results]
-    E --> H
-    F --> H
-    G --> H
-```
+This pipeline compares gene expression profiles from Parkinson's disease (GDS5646) and Influenza (GDS6063) datasets, sourced from NCBI's Gene Expression Omnibus, to characterize the overlap between neurodegenerative and viral-response gene expression signatures. The framework applies multiple independent validation methods, statistical significance testing, formal differential expression analysis, correlation analysis, and functional pathway enrichment, so that any observed overlap is supported by more than one line of evidence rather than a single test.
 
 ## Project Structure
 
 ```
 comparative-transcriptomic-analysis/
-├── transcriptomic_analysis.py   # End-to-end pipeline
+├── pd_vs_viral.ipynb             # Current, corrected end-to-end analysis notebook
+├── GDS5646_full.soft             # Raw GEO SOFT file — Parkinson's disease dataset
+├── GDS6063_full.soft             # Raw GEO SOFT file — Influenza dataset
+├── GDS5646.csv                   # Parsed, tabular version of GDS5646
+├── GDS6063.csv                   # Parsed, tabular version of GDS6063
 ├── requirements.txt
-├── .gitignore                    # Excludes raw data and generated results
-├── data/                         # Raw GEO SOFT files and converted CSVs (gitignored)
-├── results/                      # Generated CSV outputs (gitignored)
-└── README.md
+├── LICENSE.md
+├── README.md
+└── .github/workflows/            # CI workflow for the Python package
 ```
 
 ## Data
 
 Two public datasets from NCBI's Gene Expression Omnibus:
 
-| Dataset | Condition | Role |
-|---|---|---|
-| GDS5646 | Parkinson's disease | Neurodegeneration proxy |
-| GDS6063 | Influenza | Viral infection proxy |
+| Dataset | Condition | Samples | Role |
+|---|---|---|---|
+| [GDS5646](https://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc=GDS5646) | Parkinson's disease | 10 | Neurodegeneration proxy |
+| [GDS6063](https://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc=GDS6063) | Influenza infection | 10 | Viral infection proxy |
 
-Both are distributed as GEO SOFT files, parsed into gene-by-sample expression tables restricted to `GSM`-prefixed sample columns.
+**Data files included in this repository:**
+- `GDS5646_full.soft`, `GDS6063_full.soft` — Raw GEO SOFT-format files downloaded directly from NCBI Gene Expression Omnibus for each dataset.
+- `GDS5646.csv`, `GDS6063.csv` — Parsed, tabular versions of the above, generated by `convert_soft_to_csv()` in `pd_vs_viral.ipynb`, restricted to GSM-prefixed sample columns and the Gene symbol column, used as the input for all downstream analysis.
 
 ## Methodology
 
-### 1. Preprocessing
-Parses each SOFT file's data table, standardizes gene symbols (uppercase, whitespace-stripped), and drops incomplete records.
+**1. Preprocessing**
+Parses each SOFT file's data table, standardizes gene symbols (uppercase, whitespace-stripped), drops incomplete records, and collapses duplicate gene symbols (multiple probes mapping to the same gene) by averaging. Gene symbols corrupted into calendar-date strings by prior spreadsheet handling (a known artifact affecting genes such as MARCH1 and the SEPT family) are identified and excluded.
 
-### 2. Gene Set Comparison
+**2. Gene Set Comparison**
 Identifies genes common to both conditions versus genes unique to each, as the starting point for downstream analysis.
 
-### 3. Statistical Validation
-- **Fisher's Exact Test**: tests whether the observed gene overlap is significant against an approximate human protein-coding gene background
-- **Chi-Square Test**: independence test on the same contingency structure, as a cross-check against Fisher's exact result
-- **Shapiro-Wilk Test**: checks normality of expression values, informing whether parametric methods (like Pearson correlation) are appropriate
+**3. Cross-Platform Normalization**
+Since GDS5646 and GDS6063 were generated on different microarray platforms, expression values for genes common to both datasets are combined into a single matrix across all 20 samples and jointly quantile-normalized, so both datasets are brought onto a shared expression-value distribution before any cross-condition comparison.
 
-### 4. Correlation Analysis
-Expression values are z-score normalized per sample (via `StandardScaler`) before computing Pearson correlation between conditions across shared genes, isolating genes with the largest absolute expression divergence between conditions.
+**4. Statistical Validation**
+- **Fisher's Exact Test:** tests whether the observed gene overlap is significant against a constructed reference background, and separately against the observed union of both gene sets
+- **Chi-Square Test:** independence test on the same contingency structure, as a cross-check against the Fisher's exact result
+- **Shapiro-Wilk Test:** checks normality of expression values, informing the choice of non-parametric and rank-based downstream methods
 
-### 5. Functional Enrichment (GO)
-Runs Gene Ontology enrichment on the common gene set via g:Profiler, to characterize the biological processes the shared genes are involved in.
+**5. Differential Expression Analysis**
+A per-gene Welch's t-test (unequal variance) compares the 10 Parkinson's samples against the 10 influenza samples across the jointly-normalized, shared gene set. Resulting p-values are corrected for multiple testing using the Benjamini-Hochberg false discovery rate (FDR) procedure, with log2 fold change computed per gene.
 
-### 6. Pathway Analysis (KEGG)
-Cross-references common genes against KEGG pathway data to identify shared biological pathways. Capped per run (default 100 genes) since each lookup requires two sequential API calls; a standalone single-gene lookup utility is also included for targeted queries.
+**6. Correlation Analysis**
+Expression values are z-score normalized per condition (via `StandardScaler`) before computing Pearson correlation between conditions across shared genes, to assess whether gene-level overlap corresponds to coordinated expression.
+
+**7. Functional Enrichment (GO)**
+Runs Gene Ontology enrichment separately on the common gene set and on the influenza-unique gene set via g:Profiler, to characterize the biological processes each set is involved in.
+
+**8. Pathway Analysis (KEGG)**
+Cross-references a sample of common genes against KEGG pathway data via the KEGG REST API (through `bioservices`) to identify shared biological pathways. Capped per run (default 100 genes) since each lookup requires sequential API calls. *Note: the KEGG REST API has experienced intermittent outages (HTTP 400 errors); some pathway results in the current analysis are drawn from an earlier successful query window rather than the most recent run.*
 
 ## Setup
 
@@ -92,24 +87,35 @@ Cross-references common genes against KEGG pathway data to identify shared biolo
 pip install -r requirements.txt
 ```
 
-Place the raw GEO SOFT files in `data/`:
+Place the raw GEO SOFT files in the repository root (already included in this repo):
 ```
-data/GDS5646_full.soft
-data/GDS6063_full.soft
+GDS5646_full.soft
+GDS6063_full.soft
 ```
 
 ## Usage
 
-```bash
-python transcriptomic_analysis.py
-```
+Open and run `pd_vs_viral.ipynb` top to bottom (Restart Kernel + Run All is recommended to avoid stale variable state between cells). This regenerates:
+- `GDS5646.csv`, `GDS6063.csv` — parsed expression tables
+- `common_genes.csv`, `unique_GDS5646.csv`, `unique_GDS6063.csv` — gene set comparisons
+- `differential_expression_results.csv` — full differential expression results
+- `GO_enrichment_common_genes.csv`, `GO_enrichment_GDS6063.csv` — functional enrichment results
+- `KEGG_pathway_analysis_common_genes_TEST.csv` — pathway mapping (when the KEGG API is available)
 
-Runs the full pipeline end to end and writes gene set comparisons, GO enrichment, and KEGG pathway results to `results/`.
+## Key Findings
+
+- **12,579 genes** shared between the two datasets, significantly more than expected by chance (Fisher's exact and chi-square tests, both p < 0.001)
+- **Low correlation (r = 0.009)** between conditions across shared genes despite the large overlap, indicating no coordinated expression relationship
+- **Differential expression analysis** identified genes significantly distinguishing the two conditions, including several with established roles in antiviral and immune signaling (RNF125, CD52, HCST, ITPKB)
+- **Functional enrichment** of the influenza-unique gene set showed system process, sensory perception, and G protein-coupled receptor signaling terms — findings discussed in the context of known intersections between antiviral innate immune pathways and Parkinson's disease risk genes in the accompanying manuscript
 
 ## Limitations
 
 - Each dataset serves as a proxy for a broader condition category (a single Parkinson's dataset for "neurodegeneration," a single Influenza dataset for "viral infection"); findings reflect these specific datasets rather than the categories at large
-- KEGG pathway analysis is capped at a configurable gene limit per run due to API call volume; full-scale runs across the entire common gene set would require batching or a longer runtime
+- No matched healthy-control samples are included in either dataset; differential expression compares the two conditions directly rather than each against controls
+- Formal batch-correction methods (e.g., ComBat) were not applied beyond joint quantile normalization
+- Sample size (n=10 per condition) limits statistical power for individual-gene-level claims
+- KEGG pathway analysis is capped at a configurable gene limit per run and subject to third-party API availability
 - No automated test suite currently covers the preprocessing or statistical functions
 
 ## Tech Stack
@@ -117,15 +123,15 @@ Runs the full pipeline end to end and writes gene set comparisons, GO enrichment
 | Category | Tools |
 |---|---|
 | Data processing | pandas, numpy |
-| Statistics | scipy (Fisher's exact, chi-square, Shapiro-Wilk) |
+| Statistics | scipy (Fisher's exact, chi-square, Shapiro-Wilk, Welch's t-test), statsmodels (FDR correction) |
 | Machine learning utilities | scikit-learn (StandardScaler) |
 | Pathway & enrichment analysis | g:Profiler (gprofiler-official), bioservices (KEGG) |
 | Visualization | matplotlib, seaborn, matplotlib-venn |
 
 ## License
 
-MIT, see [LICENSE](LICENSE).
+MIT, see [LICENSE.md](LICENSE.md).
 
-## Author
+## Authors
 
-Nurana Verdiyeva, in collaboration with Dr. Leyla Baghirzada (University of Calgary)
+Nurana Verdiyeva, Istanbul Technical University — in collaboration with Leyla Baghirzada, MD, FRCPC, MPH, Clinical Assistant Professor, Department of Anesthesiology, Perioperative and Pain Medicine, University of Calgary.
