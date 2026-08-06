@@ -2,8 +2,9 @@ pandas
 numpy
 scipy
 scikit-learn
-matplotlib
+statsmodels
 seaborn
+matplotlib
 matplotlib-venn
 gprofiler-official
 bioservices
