@@ -6,7 +6,7 @@ A gene expression analysis pipeline comparing a neurodegenerative disease datase
 
 International collaboration with **Leyla Baghirzada, MD, FRCPC, MPH**, Clinical Assistant Professor, Department of Anesthesiology, Perioperative and Pain Medicine, University of Calgary.
 
-A preprint based on this analysis is submitted to bioRxiv.
+Manuscript submitted to Journal of Bioinformatics and Genomics (under review). Preprint available on Zenodo: https://doi.org/10.5281/zenodo.21851016
 
 ## Table of Contents
 - [Overview](#overview)
