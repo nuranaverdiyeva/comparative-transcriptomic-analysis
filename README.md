@@ -29,7 +29,8 @@ This pipeline compares gene expression profiles from Parkinson's disease (GDS564
 
 ```
 comparative-transcriptomic-analysis/
-├── pd_vs_viral.ipynb             # Current, corrected end-to-end analysis notebook
+├── transcriptomic_analysis.ipynb # Current, corrected end-to-end analysis notebook
+├── transcriptomic_analysis.py    # Equivalent standalone Python script
 ├── GDS5646_full.soft             # Raw GEO SOFT file — Parkinson's disease dataset
 ├── GDS6063_full.soft             # Raw GEO SOFT file — Influenza dataset
 ├── GDS5646.csv                   # Parsed, tabular version of GDS5646
@@ -95,7 +96,7 @@ GDS6063_full.soft
 
 ## Usage
 
-Open and run `pd_vs_viral.ipynb` top to bottom (Restart Kernel + Run All is recommended to avoid stale variable state between cells). This regenerates:
+Open and run `transcriptomic_analysis.ipynb` top to bottom (Restart Kernel + Run All is recommended to avoid stale variable state between cells). This regenerates:
 - `GDS5646.csv`, `GDS6063.csv` — parsed expression tables
 - `common_genes.csv`, `unique_GDS5646.csv`, `unique_GDS6063.csv` — gene set comparisons
 - `differential_expression_results.csv` — full differential expression results
