@@ -1,6 +1,7 @@
 # Comparative Transcriptomic Analysis of Neurodegeneration and Viral Infection: A Multi-Method Validation Framework
 
-![Python](https://img.shields.io/badge/python-3.9-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Status](https://img.shields.io/badge/status-active-brightgreen) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21851016.svg)](https://doi.org/10.5281/zenodo.21851016)
+![Python](https://img.shields.io/badge/python-3.9-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Status](https://img.shields.io/badge/status-active-brightgreen) 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21851016.svg)](https://doi.org/10.5281/zenodo.21851016)
 
 A gene expression analysis pipeline comparing a neurodegenerative disease dataset against a viral infection dataset, using cross-platform normalization, differential expression testing, correlation analysis, statistical validation, and pathway enrichment to identify shared and divergent transcriptomic signatures.
 
