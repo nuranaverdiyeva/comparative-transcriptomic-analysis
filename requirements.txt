@@ -9,3 +9,4 @@ matplotlib-venn
 gprofiler-official
 bioservices
 tqdm
+adjustText
